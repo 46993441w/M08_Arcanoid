@@ -58,15 +58,15 @@ var mainState = (function (_super) {
         this.rectangles.enableBody = true;
         this.rectangles.physicsBodyType = Phaser.Physics.ARCADE;
         var colors = [];
-        colors.push('blau');
-        colors.push('vermell');
-        colors.push('verd');
         colors.push('gris');
+        colors.push('vermell');
+        colors.push('blau');
+        colors.push('verd');
         for (var i = 0; i < 4; i++) {
             var y = (i * 32 + 32) + 50;
             for (var j = 0; j < 8; j++) {
                 var x = j * 63 + 63;
-                var rectangle = new Rectangle(this.game, x, y, 'blau');
+                var rectangle = new Rectangle(this.game, x, y, colors[i]);
                 this.rectangles.add(rectangle);
             }
         }
