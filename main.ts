@@ -10,6 +10,7 @@ class mainState extends Phaser.State {
     private cursor:Phaser.CursorKeys;
     private contadorText:Phaser.Text;
     private introText:Phaser.Text;
+    private vidaText:Phaser.Text;
     private contador = 0;
     private bolaEnBarra = true;
 
@@ -41,24 +42,20 @@ class mainState extends Phaser.State {
 
         this.cursor = this.input.keyboard.createCursorKeys();
 
-        this.contadorText = this.game.add.text(400, 35, "Contador:  0 ", {
-            font: "25px Arial",
-            fill: "#ff0044",
-            align: "center"
-        });
+        this.contadorText = this.game.add.text(400, 35, "Contador:  0 ", { font: "25px Arial", fill: "#ff0044", align: "center"});
+        this.vidaText = this.game.add.text(35, 35, "Vides:  " + this.VIDES, { font: "25px Arial", fill: "#ff0044", align: "center"});
         this.introText = this.game.add.text(this.game.world.centerX, 400, '- Click per a Començar -', { font: "40px Arial", fill: "#ff0044", align: "center" });
         this.introText.anchor.setTo(0.5, 0.5);
     }
 
     private crearJugador(){
-        this.bola = this.add.sprite(this.world.centerX, this.world.height - 100, 'bola');
-        this.bola.anchor.setTo(0.5, 0.5);
-        this.bola.checkWorldBounds = true;
-        this.bola.health = this.VIDES;
-
         this.barra = this.add.sprite(this.world.centerX, this.world.height - 50, 'barra');
         this.barra.anchor.setTo(0.5, 0.5);
 
+        this.bola = this.add.sprite(this.barra.x, this.barra.y - 26, 'bola');
+        this.bola.anchor.setTo(0.5, 0.5);
+        this.bola.checkWorldBounds = true;
+        this.bola.health = this.VIDES;
 
         this.physics.enable(this.barra, Phaser.Physics.ARCADE); // activar la fisica de la barra
         this.physics.enable(this.bola, Phaser.Physics.ARCADE); // activar la fisica de la bola
@@ -99,13 +96,27 @@ class mainState extends Phaser.State {
     private perdreVida():void {
         this.bola.damage(1);
         if (this.bola.health == 0) {
-            //gameOver();
+            this.gameOver();
         } else {
             this.bolaEnBarra = true;
-            this.bola.reset(this.barra.body.x, this.barra.y - 26);
+            this.bola.x = this.barra.x;
+            this.bola.y = this.barra.y - 26;
+            this.bola.body.velocity.x = 0;
+            this.bola.body.velocity.y = 0;
             this.bola.animations.stop();
+            this.vidaText.setText("Vides: " + this.bola.health);
         }
 
+    }
+
+    private gameOver(){
+        this.contador = 0;
+        this.introText.visible = true;
+        this.bolaEnBarra = true;
+        this.bola.reset(this.barra.body.x, this.barra.y - 26);
+        this.bola.health = this.VIDES;
+        this.bola.animations.stop();
+        this.vidaText.setText("Vides: " + this.bola.health);
     }
 
     update():void {
@@ -117,7 +128,7 @@ class mainState extends Phaser.State {
         if(this.input.activePointer.isDown && this.bolaEnBarra){
             this.bola.body.velocity.x= 200;
             this.bola.body.velocity.y= 190;
-            this.introText.setText("");
+            this.introText.visible = false;
             this.bolaEnBarra = false;
         }
 
@@ -141,8 +152,7 @@ class mainState extends Phaser.State {
             // Bola esta a la part dreta de la barra
             diff = bola.x - barra.x;
             bola.body.velocity.x = (10 * diff);
-        }
-        else {
+        } else {
             // Bola esta al centre de la barra
             //  Add a little random X to stop it bouncing straight up!
             bola.body.velocity.x = 2 + Math.random() * 8;
@@ -151,7 +161,7 @@ class mainState extends Phaser.State {
 
     private trencaRectangle(bola:Phaser.Sprite, rectangle:Rectangle){
         rectangle.kill();
-        this.contador++;
+        this.contador += 10;
         this.contadorText.setText("Contador: " + this.contador);
         if (this.rectangles.countLiving() == 0) {
             //  New level starts

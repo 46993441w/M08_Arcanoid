@@ -32,21 +32,18 @@ var mainState = (function (_super) {
         this.crearJugador();
         this.createBarres();
         this.cursor = this.input.keyboard.createCursorKeys();
-        this.contadorText = this.game.add.text(400, 35, "Contador:  0 ", {
-            font: "25px Arial",
-            fill: "#ff0044",
-            align: "center"
-        });
+        this.contadorText = this.game.add.text(400, 35, "Contador:  0 ", { font: "25px Arial", fill: "#ff0044", align: "center" });
+        this.vidaText = this.game.add.text(35, 35, "Vides:  " + this.VIDES, { font: "25px Arial", fill: "#ff0044", align: "center" });
         this.introText = this.game.add.text(this.game.world.centerX, 400, '- Click per a Començar -', { font: "40px Arial", fill: "#ff0044", align: "center" });
         this.introText.anchor.setTo(0.5, 0.5);
     };
     mainState.prototype.crearJugador = function () {
-        this.bola = this.add.sprite(this.world.centerX, this.world.height - 100, 'bola');
+        this.barra = this.add.sprite(this.world.centerX, this.world.height - 50, 'barra');
+        this.barra.anchor.setTo(0.5, 0.5);
+        this.bola = this.add.sprite(this.barra.x, this.barra.y - 26, 'bola');
         this.bola.anchor.setTo(0.5, 0.5);
         this.bola.checkWorldBounds = true;
         this.bola.health = this.VIDES;
-        this.barra = this.add.sprite(this.world.centerX, this.world.height - 50, 'barra');
-        this.barra.anchor.setTo(0.5, 0.5);
         this.physics.enable(this.barra, Phaser.Physics.ARCADE); // activar la fisica de la barra
         this.physics.enable(this.bola, Phaser.Physics.ARCADE); // activar la fisica de la bola
         this.bola.body.maxVelocity.setTo(this.MAX_SPEED, this.MAX_SPEED); // x, y
@@ -78,12 +75,26 @@ var mainState = (function (_super) {
     mainState.prototype.perdreVida = function () {
         this.bola.damage(1);
         if (this.bola.health == 0) {
+            this.gameOver();
         }
         else {
             this.bolaEnBarra = true;
-            this.bola.reset(this.barra.body.x, this.barra.y - 26);
+            this.bola.x = this.barra.x;
+            this.bola.y = this.barra.y - 26;
+            this.bola.body.velocity.x = 0;
+            this.bola.body.velocity.y = 0;
             this.bola.animations.stop();
+            this.vidaText.setText("Vides: " + this.bola.health);
         }
+    };
+    mainState.prototype.gameOver = function () {
+        this.contador = 0;
+        this.introText.visible = true;
+        this.bolaEnBarra = true;
+        this.bola.reset(this.barra.body.x, this.barra.y - 26);
+        this.bola.health = this.VIDES;
+        this.bola.animations.stop();
+        this.vidaText.setText("Vides: " + this.bola.health);
     };
     mainState.prototype.update = function () {
         _super.prototype.update.call(this);
@@ -91,7 +102,7 @@ var mainState = (function (_super) {
         if (this.input.activePointer.isDown && this.bolaEnBarra) {
             this.bola.body.velocity.x = 200;
             this.bola.body.velocity.y = 190;
-            this.introText.setText("");
+            this.introText.visible = false;
             this.bolaEnBarra = false;
         }
         if (this.bolaEnBarra) {
@@ -122,7 +133,7 @@ var mainState = (function (_super) {
     };
     mainState.prototype.trencaRectangle = function (bola, rectangle) {
         rectangle.kill();
-        this.contador++;
+        this.contador += 10;
         this.contadorText.setText("Contador: " + this.contador);
         if (this.rectangles.countLiving() == 0) {
             //  New level starts
