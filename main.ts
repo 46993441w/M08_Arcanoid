@@ -57,6 +57,10 @@ class mainState extends Phaser.State {
         this.bola.checkWorldBounds = true;
         this.bola.health = this.VIDES;
 
+        this.bola.y = 300;
+
+        this.add.tween(this.barra).to({angle: 360}, 1000, Phaser.Easing.Cubic.In, true);
+        this.add.tween(this.bola).to( { y: this.barra.y - 26 }, 1000, Phaser.Easing.Bounce.Out, true);
         this.physics.enable(this.barra, Phaser.Physics.ARCADE); // activar la fisica de la barra
         this.physics.enable(this.bola, Phaser.Physics.ARCADE); // activar la fisica de la bola
 
@@ -210,6 +214,8 @@ class Rectangle extends Phaser.Sprite {
         this.game.physics.enable(this, Phaser.Physics.ARCADE); // activar la fisica de cada rectangle
         this.body.bounce.setTo(1.2);
         this.body.immovable = true;
+        this.alpha = 0.1;
+        this.game.add.tween(this).to( { alpha: 1 }, Math.random() * 1000, "Linear", true);
 
     }
 
